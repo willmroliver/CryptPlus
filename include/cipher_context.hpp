@@ -3,7 +3,6 @@
 
 #include <openssl/evp.h>
 #include "cipher.hpp"
-#include "util.hpp"
 
 namespace crpt {
 
