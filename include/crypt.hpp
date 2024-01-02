@@ -7,7 +7,7 @@
 namespace crpt {
 
 /**
- * @brief Provides OpenSSL encryption/decryption
+ * @brief Provides OpenSSL symmetric encryption/decryption
  */
 class Crypt {
     private:
