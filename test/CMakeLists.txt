@@ -1,7 +1,8 @@
 target_sources(crypt_test
     PRIVATE
-        crypt.cpp
         main.cpp
+        crypt.cpp
+        exchange.cpp
 )
 
 target_link_libraries(crypt_test
