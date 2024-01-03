@@ -4,7 +4,7 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
-#include "util.hpp"
+#include "error.hpp"
 
 namespace crpt {
 
@@ -25,7 +25,7 @@ class Cipher {
             cipher { EVP_CIPHER_fetch(nullptr, name.c_str(), nullptr) }
         {
             if (cipher == nullptr) {
-                err_out();
+                Error::openssl_err_out("EVP_CIPHER_fetch");
             }
         }
         /**
@@ -36,7 +36,7 @@ class Cipher {
             cipher { EVP_CIPHER_fetch(c, name.c_str(), nullptr) }
         {
             if (cipher == nullptr) {
-                err_out();
+                Error::openssl_err_out("EVP_CIPHER_fetch");
             }
         }
         /**
@@ -47,7 +47,7 @@ class Cipher {
             cipher { EVP_CIPHER_fetch(c, name.c_str(), properties.c_str()) }
         {
             if (cipher == nullptr) {
-                err_out();
+                Error::openssl_err_out("EVP_CIPHER_fetch");
             }
         }
         /**
@@ -58,7 +58,7 @@ class Cipher {
             cipher { EVP_CIPHER_fetch(nullptr, name.c_str(), properties.c_str()) }
         {
             if (cipher == nullptr) {
-                err_out();
+                Error::openssl_err_out("EVP_CIPHER_fetch");
             }
         }
         Cipher(Cipher& c) = default;

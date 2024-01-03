@@ -4,7 +4,7 @@
 #include <string>
 #include <openssl/evp.h>
 #include <openssl/x509.h>
-#include "util.hpp"
+#include "error.hpp"
 
 namespace crpt {
 
@@ -20,15 +20,15 @@ class PKey {
             if (!context) return;
 
             if (EVP_PKEY_keygen_init(context) <= 0) {
-                err_out("EVP_PKEY_keygen_init");
+                Error::openssl_err_out("EVP_PKEY_keygen_init");
                 return;
             }
             if (EVP_PKEY_CTX_set_params(context, params) <= 0) {
-                err_out("EVP_PKEY_CTX_set_params");
+                Error::openssl_err_out("EVP_PKEY_CTX_set_params");
                 return;
             }
             if (EVP_PKEY_generate(context, &key) <= 0) {
-                err_out("EVP_PKEY_generate");
+                Error::openssl_err_out("EVP_PKEY_generate");
                 return;
             } 
         }
