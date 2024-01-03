@@ -33,7 +33,7 @@ class PKeyContext {
         inline bool is_null() const {
             return context == nullptr;
         }
-        
+
         /**
          * @brief Generates a private key from this context with the default safe-prime group choice for Diffie-Hellman.
          * Injects the context as the first constructor arg and passes any additional valid PKey constructor args. 
@@ -45,8 +45,8 @@ class PKeyContext {
          * @return PKey 
          */
         template <typename... Args>
-        inline PKey new_pkey(Args... args) const {
-            return { context, ...args };
+        inline PKey new_pkey(Args&&... args) const {
+            return { context, std::forward<Args>(args)... };
         }
 };
 

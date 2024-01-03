@@ -24,7 +24,7 @@ class Crypt {
         template <typename... Args>
         Crypt(Args&&... args):
             context {},
-            cipher { context.new_cipher(args...) }
+            cipher { context.new_cipher(std::forward<Args>(args)...) }
         {}
 
         inline bool context_is_null() const {
