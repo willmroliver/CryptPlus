@@ -4,6 +4,7 @@
 #include <string>
 #include <openssl/evp.h>
 #include "pkey.hpp"
+#include "error.hpp"
 
 namespace crpt {
 
@@ -12,6 +13,9 @@ class PKeyContext {
         EVP_PKEY_CTX* context;
 
     public:
+        PKeyContext(EVP_PKEY* key): 
+            context { EVP_PKEY_CTX_new_from_pkey(nullptr, key, nullptr) }
+        {}
         PKeyContext(std::string name):
             context { EVP_PKEY_CTX_new_from_name(nullptr, name.c_str(), nullptr) }
         {}
@@ -24,29 +28,91 @@ class PKeyContext {
         PKeyContext(std::string name, std::string propquery):
             context { EVP_PKEY_CTX_new_from_name(nullptr, name.c_str(), propquery.c_str()) }
         {}
-        PKeyContext(PKeyContext& ctx) = delete;
-        PKeyContext(PKeyContext&& ctx) = delete;
+        PKeyContext(PKeyContext& ctx): 
+            context { EVP_PKEY_CTX_dup(ctx.context) }
+        {}
+        PKeyContext(PKeyContext&& ctx): 
+            context { ctx.context }
+        {
+            ctx.context = nullptr;
+        };
         ~PKeyContext() {
             EVP_PKEY_CTX_free(context);
         }
 
-        inline bool is_null() const {
-            return context == nullptr;
+        PKeyContext& operator=(PKeyContext&& ctx) {
+            context = ctx.context;
+            ctx.context = nullptr;
+
+            return *this;
         }
 
         /**
-         * @brief Generates a private key from this context with the default safe-prime group choice for Diffie-Hellman.
-         * Injects the context as the first constructor arg and passes any additional valid PKey constructor args. 
+         * @brief Set EVP_PKEY_CTX parameters. See man EVP_PKEY_CTX_set_params
          * 
-         * See PKey(EVP_PKEY_CTX*, std::string), PKey(EVP_PKEY_CTX*, OSSL_PARAM*)
-         * 
-         * @tparam Args A valid constructor argument list for PKey, minus the leading EVP_PKEY_CTX* arg.
-         * @param args The arguments to be passed.
-         * @return PKey 
+         * @param params The parameters to set
+         * @return The success or failure of the call to EVP_PKEY_CTX_set_params
          */
-        template <typename... Args>
-        inline PKey new_pkey(Args&&... args) const {
-            return { context, std::forward<Args>(args)... };
+        inline bool set_params(const OSSL_PARAM* params) const {
+            if (EVP_PKEY_CTX_set_params(context, params) <= 0) {
+                Error::openssl_err_out("EVP_PKEY_CTX_set_params");
+                return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * @brief Calls EVP_PKEY_derive_init on the context. See man EVP_PKEY_derive_init
+         * 
+         * @return bool The success or failure of the call 
+         */
+        inline bool derive_init() const {
+            if (EVP_PKEY_derive_init(context) <= 0) {
+                Error::openssl_err_out("EVP_PKEY_derive_init");
+                return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * @brief Calls EVP_PKEY_derive with a null buffer to retrieve the derived secret length. See man EVP_PKEY_derive
+         * 
+         * @param secret_len Pointer to store the result in
+         * @return bool The success or failure of the call
+         */
+        inline bool derive_len(size_t* secret_len) const {
+            if (EVP_PKEY_derive(context, nullptr, secret_len) <= 0) {
+                Error::openssl_err_out("EVP_PKEY_CTX_set_params");
+                return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * @brief Derives a shared secret. See man EVP_PKEY_derive
+         * 
+         * @param secret Buffer to write the secret to
+         * @param secret_len Pointer to the length of the secret. See PKeyContext::pkey_derive_len
+         * @return bool The success or failure of the call
+         */
+        inline bool derive(unsigned char* secret, size_t* secret_len) const {
+            if (EVP_PKEY_derive(context, secret, secret_len) <= 0) {
+                Error::openssl_err_out("EVP_PKEY_CTX_set_params");
+                return false;
+            }
+
+            return true;
+        }
+
+        inline EVP_PKEY_CTX* const get_context() const {
+            return context;
+        }
+
+        inline bool is_null() const {
+            return context == nullptr;
         }
 };
 

@@ -27,9 +27,6 @@ class CipherContext {
         ~CipherContext() {
             EVP_CIPHER_CTX_free(context);
         }
-        inline bool is_null() const { 
-            return context == nullptr;
-        };
 
         /**
          * @brief Returns a new Cipher object
@@ -42,6 +39,10 @@ class CipherContext {
         inline Cipher new_cipher(Args&&... args) const {
             return Cipher(context, std::forward<Args>(args)...);
         }
+
+        inline bool is_null() const { 
+            return context == nullptr;
+        };
 };
 
 }
