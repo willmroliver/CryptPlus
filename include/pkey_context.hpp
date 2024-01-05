@@ -35,11 +35,13 @@ class PKeyContext {
             context { ctx.context }
         {
             ctx.context = nullptr;
-        };
+        }
         ~PKeyContext() {
             EVP_PKEY_CTX_free(context);
         }
-
+        PKeyContext& operator=(PKeyContext& ctx) {
+            context = EVP_PKEY_CTX_dup(ctx.context);
+        }
         PKeyContext& operator=(PKeyContext&& ctx) {
             context = ctx.context;
             ctx.context = nullptr;
