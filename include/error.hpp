@@ -40,7 +40,7 @@ class Error {
          * @param error The error message to write to err_ostream.
          */
         static inline void err_out(std::string error) {
-            *err_ostream << "crypt: " << error;
+            *err_ostream << "crypt: " << error << std::endl;
         }
 };
 

@@ -10,27 +10,23 @@ namespace crpt {
 
 class PKey {
     private:
-        EVP_PKEY_CTX* context;
         EVP_PKEY* key;
 
-        unsigned char* pub_key = nullptr;
-        int pub_key_len = 0;
+        inline void generate_key(EVP_PKEY_CTX* ctx, OSSL_PARAM* params) {
+            if (!ctx) return;
 
-        inline void generate_key(OSSL_PARAM* params) {
-            if (!context) return;
-
-            if (EVP_PKEY_keygen_init(context) <= 0) {
+            if (EVP_PKEY_keygen_init(ctx) <= 0) {
                 Error::openssl_err_out("EVP_PKEY_keygen_init");
                 return;
             }
-            if (EVP_PKEY_CTX_set_params(context, params) <= 0) {
+            if (EVP_PKEY_CTX_set_params(ctx, params) <= 0) {
                 Error::openssl_err_out("EVP_PKEY_CTX_set_params");
                 return;
             }
-            if (EVP_PKEY_generate(context, &key) <= 0) {
+            if (EVP_PKEY_generate(ctx, &key) <= 0) {
                 Error::openssl_err_out("EVP_PKEY_generate");
                 return;
-            } 
+            }
         }
     
     public:
@@ -43,7 +39,6 @@ class PKey {
          * @param group The safe-prime group. See man EVP_PKEY-DH
          */
         PKey(EVP_PKEY_CTX* ctx, std::string group):
-            context { ctx },
             key { nullptr }
         {
             OSSL_PARAM params[] = {
@@ -51,7 +46,7 @@ class PKey {
                 OSSL_PARAM_construct_end()
             };
 
-            generate_key(params);
+            generate_key(ctx, params);
         }
         /**
          * @brief Generates a key from the given context. 
@@ -61,11 +56,10 @@ class PKey {
          * @param ctx The context. See man EVP_PKEY_CTX & man EVP_PKEY_keygen_init
          * @param params The OSSL_PARAMs to pass to EVP_PKEY_CTX_set_params()
          */
-        PKey(EVP_PKEY_CTX* ctx, OSSL_PARAM* params): 
-            context { ctx },
+        PKey(EVP_PKEY_CTX* ctx, OSSL_PARAM* params):
             key { nullptr }
         {
-            generate_key(params);
+            generate_key(ctx, params);
         }
         /**
          * @brief Wraps an existing EVP_PKEY.
@@ -73,45 +67,61 @@ class PKey {
          * @param ctx The context. See man EVP_PKEY_CTX
          * @param key The key. See man EVP_PKEY
          */
-        PKey(EVP_PKEY_CTX* ctx, EVP_PKEY* key): 
-            context { ctx },
+        PKey(EVP_PKEY* key):
             key { key }
         {}
-        /**
-         * @brief Derives an EVP_PKEY in DER format from the given public key. See man i2d_PUBKEY & man d2i_PUBKEY
-         * 
-         * @param pub_key_str The public key
-         */
-        PKey(std::string pub_key_str): 
-            context { nullptr }
-        {
-            auto pub_key_raw = reinterpret_cast<const unsigned char*>(pub_key_str.c_str());
-            pub_key_len = pub_key_str.size();
-            key = d2i_PUBKEY(nullptr, &pub_key_raw, pub_key_str.size());
-            pub_key = const_cast<unsigned char*>(pub_key_raw);
-        }
+
         PKey(): 
-            context { nullptr },
             key { nullptr }
         {}
-        PKey(PKey& pkey) = delete;
-        PKey(PKey&& pkey) = default;
-        PKey& operator=(PKey&& pkey) = default;
+
+        PKey(PKey& pkey):
+            key { EVP_PKEY_dup(pkey.key) }
+        {}
+
+        PKey(PKey&& pkey):
+            key { pkey.key }
+        {
+            pkey.key = nullptr;
+        }
+
         ~PKey() {
             EVP_PKEY_free(key);
-            OPENSSL_free(pub_key);
+        }
+
+        PKey& operator=(PKey& pkey) {
+            key = EVP_PKEY_dup(pkey.key);
+
+            return *this;
+        }
+
+        PKey& operator=(PKey&& pkey) {
+            key = pkey.key;
+            pkey.key = nullptr;
+            
+            return *this;
+        }
+
+        /**
+         * @brief See man EVP_PKEY_derive_set_peer
+         * 
+         * @param ctx The context. See man EVP_PKEY_CTX
+         */
+        inline bool derive_set_peer(EVP_PKEY_CTX* ctx) const {
+            if (EVP_PKEY_derive_set_peer(ctx, key) <= 0) {
+                Error::openssl_err_out("EVP_PKEY_derive_set_peer");
+                return false;
+            }
+
+            return true;
+        }
+
+        inline EVP_PKEY* const get_key() {
+            return key;
         }
 
         inline bool is_null() const {
             return key == nullptr;
-        }
-
-        inline std::pair<unsigned char*, int> get_pub_key() {
-            if (pub_key == nullptr) {
-                pub_key_len = i2d_PUBKEY(key, &pub_key);
-            }
-
-            return { pub_key, pub_key_len };
         }
 };
 
