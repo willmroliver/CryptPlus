@@ -41,6 +41,8 @@ class PKeyContext {
         }
         PKeyContext& operator=(PKeyContext& ctx) {
             context = EVP_PKEY_CTX_dup(ctx.context);
+
+            return *this;
         }
         PKeyContext& operator=(PKeyContext&& ctx) {
             context = ctx.context;
