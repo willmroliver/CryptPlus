@@ -35,6 +35,8 @@ class Exchange {
         ~Exchange() {
             OPENSSL_clear_free(shared_secret, secret_len);
         };
+        Exchange& operator=(Exchange& exc) = delete;
+        Exchange& operator=(Exchange&& exc) = delete;
 
         inline bool derive_secret(PublicKeyDER& public_key) {
             auto shared_key = public_key.get_key();
