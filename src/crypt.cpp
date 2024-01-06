@@ -1,7 +1,7 @@
 #include <openssl/evp.h>
 #include <string>
 #include <utility>
-#include "cipher_context.hpp"
+#include "cipher-context.hpp"
 #include "cipher.hpp"
 #include "crypt.hpp"
 #include "error.hpp"
