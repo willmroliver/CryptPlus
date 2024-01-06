@@ -5,6 +5,7 @@
 #include <openssl/err.h>
 
 #include "error.hpp"
+#include "cipher-context.hpp"
 
 namespace crpt {
 
@@ -13,63 +14,39 @@ namespace crpt {
  */
 class Cipher {
     private:
-        EVP_CIPHER_CTX* context;
+        CipherContext context;
         EVP_CIPHER* cipher;
     
     public:
         /**
          * @brief See man EVP_CIPHER_fetch
          */
-        Cipher(EVP_CIPHER_CTX* ctx, std::string name):
-            context { ctx },
-            cipher { EVP_CIPHER_fetch(nullptr, name.c_str(), nullptr) }
-        {
-            if (cipher == nullptr) {
-                Error::openssl_err_out("EVP_CIPHER_fetch");
-            }
-        }
-        /**
-         * @brief See man EVP_CIPHER_fetch
-         */
-        Cipher(EVP_CIPHER_CTX* ctx, std::string name, OSSL_LIB_CTX* c):
-            context { ctx },
-            cipher { EVP_CIPHER_fetch(c, name.c_str(), nullptr) }
-        {
-            if (cipher == nullptr) {
-                Error::openssl_err_out("EVP_CIPHER_fetch");
-            }
-        }
-        /**
-         * @brief See man EVP_CIPHER_fetch
-         */
-        Cipher(EVP_CIPHER_CTX* ctx, std::string name, OSSL_LIB_CTX* c, std::string properties):
-            context { ctx },
-            cipher { EVP_CIPHER_fetch(c, name.c_str(), properties.c_str()) }
-        {
-            if (cipher == nullptr) {
-                Error::openssl_err_out("EVP_CIPHER_fetch");
-            }
-        }
-        /**
-         * @brief See man EVP_CIPHER_fetch
-         */
-        Cipher(EVP_CIPHER_CTX* ctx, std::string name, std::string properties):
-            context { ctx },
-            cipher { EVP_CIPHER_fetch(nullptr, name.c_str(), properties.c_str()) }
-        {
-            if (cipher == nullptr) {
-                Error::openssl_err_out("EVP_CIPHER_fetch");
-            }
-        }
-        Cipher(Cipher& c) = default;
-        Cipher(Cipher&& c) = default;
-        ~Cipher() {
-            EVP_CIPHER_free(cipher);
-        }
+        Cipher(std::string name);
 
-        inline bool is_null() const {
-            return cipher == nullptr;
-        };
+        /**
+         * @brief See man EVP_CIPHER_fetch
+         */
+        Cipher(std::string name, OSSL_LIB_CTX* c);
+        
+        /**
+         * @brief See man EVP_CIPHER_fetch
+         */
+        Cipher(std::string name, OSSL_LIB_CTX* c, std::string properties);
+
+        /**
+         * @brief See man EVP_CIPHER_fetch
+         */
+        Cipher(std::string name, std::string properties);
+
+        Cipher(Cipher& c) = delete;
+
+        Cipher(Cipher&& c);
+
+        Cipher& operator=(Cipher& c) = delete;
+
+        Cipher& operator=(Cipher&& c);
+
+        ~Cipher();
 
         /**
          * @brief Initializes the cipher for encryption. See man EVP_EncryptInit_ex2
@@ -78,9 +55,7 @@ class Cipher {
          * @param iv The initialization vector, if required.
          * @return bool The success or failure of the initialization.
          */
-        inline bool encrypt_init(const unsigned char* key, const unsigned char* iv) const {
-            return EVP_EncryptInit_ex2(context, cipher, key, iv, nullptr);
-        }
+        bool encrypt_init(const unsigned char* key, const unsigned char* iv) const;
 
         /**
          * @brief Initializes the cipher for encryption. See man EVP_EncryptInit_ex2
@@ -90,9 +65,7 @@ class Cipher {
          * @param params Optional parameters.
          * @return bool The success or failure of the initialization.
          */
-        inline bool encrypt_init(const unsigned char* key, const unsigned char* iv, OSSL_PARAM* params) const {
-            return EVP_EncryptInit_ex2(context, cipher, key, iv, params);
-        }
+        bool encrypt_init(const unsigned char* key, const unsigned char* iv, OSSL_PARAM* params) const;
         
         /**
          * @brief Encrypts the content of msg and stores the result in out. See man EVP_EncryptUpdate
@@ -103,9 +76,7 @@ class Cipher {
          * @param msg_len The length of the data to encrypt.
          * @return bool The success or failure of the encryption attempt.
          */
-        inline bool encrypt_update(unsigned char* out, int* out_len, const unsigned char* msg, int msg_len) {
-            return EVP_EncryptUpdate(context, out, out_len, msg, msg_len);
-        }
+        bool encrypt_update(unsigned char* out, int* out_len, const unsigned char* msg, int msg_len);
         
         /**
          * @brief Completes the initialized encryption. See man EVP_EncryptFinal_ex
@@ -114,9 +85,7 @@ class Cipher {
          * @param tmp_len Stores the number of added bytes as a result of the call to final.
          * @return bool The success or failure of the finalization call.
          */
-        inline bool encrypt_final(unsigned char* out, int* tmp_len) {
-            return EVP_EncryptFinal_ex(context, out, tmp_len);
-        }
+        bool encrypt_final(unsigned char* out, int* tmp_len);
 
         /**
          * @brief Initializes the cipher for decryption. See man EVP_DecryptInit_ex2
@@ -125,9 +94,7 @@ class Cipher {
          * @param iv The initialization vector, if required.
          * @return bool The success or failure of the initialization.
          */
-        inline bool decrypt_init(const unsigned char* key, const unsigned char* iv) const {
-            return EVP_DecryptInit_ex2(context, cipher, key, iv, nullptr);
-        }
+        bool decrypt_init(const unsigned char* key, const unsigned char* iv) const;
 
         /**
          * @brief Initializes the cipher for decryption. See man EVP_DecryptInit_ex2
@@ -137,9 +104,7 @@ class Cipher {
          * @param params Optional parameters.
          * @return bool The success or failure of the initialization.
          */
-        inline bool decrypt_init(const unsigned char* key, const unsigned char* iv, OSSL_PARAM* params) const {
-            return EVP_DecryptInit_ex2(context, cipher, key, iv, params);
-        }
+        bool decrypt_init(const unsigned char* key, const unsigned char* iv, OSSL_PARAM* params) const;
         
         /**
          * @brief Decrypts the content of msg and stores the result in out. See man EVP_DecryptUpdate
@@ -150,9 +115,7 @@ class Cipher {
          * @param msg_len The length of the data to decrypt.
          * @return bool The success or failure of the decryption attempt.
          */
-        inline bool decrypt_update(unsigned char* out, int* out_len, const unsigned char* msg, int msg_len) {
-            return EVP_DecryptUpdate(context, out, out_len, msg, msg_len);
-        }
+        bool decrypt_update(unsigned char* out, int* out_len, const unsigned char* msg, int msg_len);
         
         /**
          * @brief Completes the initialized decryption. See man EVP_DecryptFinal_ex
@@ -161,27 +124,23 @@ class Cipher {
          * @param tmp_len Stores the number of added bytes as a result of the call to final.
          * @return bool The success or failure of the finalization call.
          */
-        inline bool decrypt_final(unsigned char* out, int* tmp_len) {
-            return EVP_DecryptFinal_ex(context, out, tmp_len);
-        }
+        bool decrypt_final(unsigned char* out, int* tmp_len);
 
         /**
          * @brief Get the cipher block size for the underlying algorithm. See man EVP_CIHPER_block_size
          * 
          * @return int 
          */
-        inline int block_size() {
-            return EVP_CIPHER_block_size(cipher);
-        }
+        int block_size();
 
         /**
          * @brief Get the cipher block size for the underlying algorithm. See man EVP_CIHPER_key_length
          * 
          * @return int 
          */
-        inline int key_length() {
-            return EVP_CIPHER_key_length(cipher);
-        }
+        int key_length();
+
+        EVP_CIPHER* const get_cipher() const;
 };
 
 }

@@ -16,15 +16,6 @@ char iv_128[] = {
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
 };
 
-BOOST_AUTO_TEST_CASE( crypt_constructor_test ) {
-    Crypt aes { "AES-256-CBC" };
-    BOOST_ASSERT( !aes.context_is_null() );
-    BOOST_ASSERT( !aes.cipher_is_null() );
-
-    Crypt not_aes { "NOT-A-REAL-ALG" };
-    BOOST_ASSERT( not_aes.cipher_is_null() );
-}
-
 BOOST_AUTO_TEST_CASE( crypt_simple_encrypt_test ) {
     Crypt aes { "AES-256-CBC" };
 

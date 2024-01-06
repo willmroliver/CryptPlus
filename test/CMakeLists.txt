@@ -7,7 +7,7 @@ target_sources(crypt_test
 
 target_link_libraries(crypt_test
     PRIVATE
-        crypt_lib
+        CryptPlus
     PUBLIC
         OpenSSL::Crypto
         ${Boost_LIBRARIES}
