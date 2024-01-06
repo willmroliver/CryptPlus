@@ -6,9 +6,9 @@ CryptPlus is a lightweight wrappper of OpenSSL cryptographic tools. Specifically
 
 Most functions are well-documented. The library is not large so a peruse through the source code should be explanatory. Make sure to refer to the man pages relating to the employed OpenSSL functions: `man crypto`.
 
-This package gives no guarantee of security to an application which uses it. Whilst careful attention has been paid to ensure that the security of OpenSSL functions employed by this library are no less secure, it is the responsibility of the library user to ensure best practices regarding security.
+No guarantee of security is given to an application which uses this library. Whilst careful attention has been paid to ensure that the security of OpenSSL functions employed are no less secure, it is the responsibility of the library user to ensure best security practices.
 
-This library was built in congruence with a collection of personal educational projects; in general security protocols should not be written from scratch.
+This codebase is part of a collection of personal educational projects; in general security protocols should not be written from scratch.
 
 ### Installation
 
