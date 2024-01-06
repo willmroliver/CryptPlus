@@ -66,3 +66,23 @@ host.derive_secret(public_key);
 std::string shared_secret = host.get_secret();
 ```
 
+Next is an example of symmetric encryption/decryption with AES-256.
+
+```cpp
+#include <crypt.hpp>
+
+Crypt aes { "AES-256-CBC" };
+
+char[32] key_256;
+char[16] iv_128;
+
+// ... Establish a 256-bit key (perhaps by hashing a shared secret derived with DH?) and a sufficiently entropic initialization vector.
+
+std::string plain_text = { "Hello, World!" };
+
+// Encrypt plain_text to std::string cipher_text. The var 'success' is a bool holding the success or failure of the operation.
+auto [cipher_text, success] = aes.encrypt(plain_text, key_256, iv_128);
+
+// Decrypt cipher_text to std::string decrypted.
+auto [decrypted, decrypt_success] = aes.decrypt(cipher_text, key_256, iv_128);
+```
