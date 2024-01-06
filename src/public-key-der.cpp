@@ -54,8 +54,12 @@ PublicKeyDER::~PublicKeyDER() {
     OPENSSL_free(public_key);
 }
 
-const unsigned char* PublicKeyDER::get_public_key() const {
+const unsigned char* const PublicKeyDER::get_public_key() const {
     return public_key;
+}
+
+int PublicKeyDER::get_len() const {
+    return len;
 }
 
 PKey PublicKeyDER::get_key() {

@@ -34,7 +34,13 @@ class PublicKeyDER {
          * 
          * @return const unsigned char* 
          */
-        const unsigned char* get_public_key() const;
+        const unsigned char* const get_public_key() const;
+
+        /**
+         * @brief See man i2d_PUBKEY
+         * 
+         */
+        int get_len() const;
         
         /**
          * @brief See man d2i_PUBKEY
