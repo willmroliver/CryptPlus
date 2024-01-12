@@ -59,20 +59,13 @@ install(
     TARGETS CryptPlus
     EXPORT CryptPlusTargets
     DESTINATION bin
+    INCLUDES DESTINATION include
 )
 
 install(
-    FILES
-        include/cipher-context.hpp
-        include/cipher.hpp
-        include/crypt.hpp
-        include/error.hpp
-        include/exchange.hpp
-        include/pkey-context.hpp
-        include/pkey.hpp
-        include/public-key-der.hpp
-    DESTINATION
-        include
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/crypt
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
 )
 
 install(

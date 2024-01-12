@@ -5,9 +5,12 @@ target_sources(CryptPlus
         crypt.cpp
         error.cpp
         exchange.cpp
+        hash-context.cpp
+        hash.cpp
         pkey-context.cpp
         pkey.cpp
         public-key-der.cpp
+        util.cpp
 )
 
 target_link_libraries(CryptPlus

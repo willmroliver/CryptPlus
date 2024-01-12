@@ -1,5 +1,5 @@
 #include <ostream>
-#include "error.hpp"
+#include "crypt/error.hpp"
 
 using namespace crpt;
 

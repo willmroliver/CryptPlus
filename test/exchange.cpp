@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "exchange.hpp"
+#include "crypt/exchange.hpp"
 
 using namespace crpt;
 

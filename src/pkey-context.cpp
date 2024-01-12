@@ -1,8 +1,8 @@
 #include <string>
 #include <openssl/evp.h>
-#include "pkey-context.hpp"
-#include "pkey.hpp"
-#include "error.hpp"
+#include "crypt/pkey-context.hpp"
+#include "crypt/pkey.hpp"
+#include "crypt/error.hpp"
 
 using namespace crpt;
 

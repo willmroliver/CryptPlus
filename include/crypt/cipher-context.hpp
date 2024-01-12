@@ -6,7 +6,7 @@
 namespace crpt {
 
 /**
- * @brief Manages a cipher context; see man crypto(7)
+ * @brief Manages a cipher context; see man crypto & man EVP_CIPHER_fetch
  */
 class CipherContext {
     private:
