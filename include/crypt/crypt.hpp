@@ -30,6 +30,12 @@ class Crypt {
         std::pair<std::string, bool> encrypt(std::string plain_text, std::string key, std::string iv);
 
         std::pair<std::string, bool> decrypt(std::string cipher_text, std::string key, std::string iv);
+
+        static std::pair<std::string, bool> hash(std::string algorithm, std::string data);
+
+        inline static std::pair<std::string, bool> hash(std::string data) {
+            return hash("SHA3-256", data);
+        }
 };
 
 }

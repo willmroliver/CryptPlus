@@ -1,29 +1,14 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
-#include "error.hpp"
-#include "cipher.hpp"
+#include "crypt/error.hpp"
+#include "crypt/cipher.hpp"
 
 using namespace crpt;
 
 Cipher::Cipher(std::string name):
-    cipher { EVP_CIPHER_fetch(nullptr, name.c_str(), nullptr) }
-{
-    if (cipher == nullptr) {
-        Error::openssl_err_out("EVP_CIPHER_fetch");
-    }
-}
-
-Cipher::Cipher(std::string name, OSSL_LIB_CTX* c):
-    cipher { EVP_CIPHER_fetch(c, name.c_str(), nullptr) }
-{
-    if (cipher == nullptr) {
-        Error::openssl_err_out("EVP_CIPHER_fetch");
-    }
-}       
-
-Cipher::Cipher(std::string name, OSSL_LIB_CTX* c, std::string properties):
-    cipher { EVP_CIPHER_fetch(c, name.c_str(), properties.c_str()) }
+    cipher { EVP_CIPHER_fetch(nullptr, name.c_str(), nullptr) },
+    name { name }
 {
     if (cipher == nullptr) {
         Error::openssl_err_out("EVP_CIPHER_fetch");
@@ -31,22 +16,52 @@ Cipher::Cipher(std::string name, OSSL_LIB_CTX* c, std::string properties):
 }
 
 Cipher::Cipher(std::string name, std::string properties):
-    cipher { EVP_CIPHER_fetch(nullptr, name.c_str(), properties.c_str()) }
+    cipher { EVP_CIPHER_fetch(nullptr, name.c_str(), properties.c_str()) },
+    properties { properties }
 {
     if (cipher == nullptr) {
         Error::openssl_err_out("EVP_CIPHER_fetch");
     }
 }
+
+Cipher::Cipher(Cipher& c):
+    context { c.context },
+    name { c.name },
+    properties { c.properties }
+{
+    cipher = EVP_CIPHER_fetch(nullptr, name.c_str(), properties.size() ? properties.c_str() : nullptr);
+}
         
-Cipher::Cipher(Cipher&& c): 
-    cipher { c.cipher }
+Cipher::Cipher(Cipher&& c):
+    context { c.context },
+    cipher { c.cipher },
+    name { c.name },
+    properties { c.properties }
 {
     c.cipher = nullptr;
+    c.name = "";
+    c.properties = "";
+}
+
+Cipher& Cipher::operator=(Cipher& c) {
+    context = c.context;
+    name = c.name;
+    properties = c.properties;
+
+    cipher = EVP_CIPHER_fetch(nullptr, name.c_str(), properties.size() ? properties.c_str() : nullptr);
+    
+    return *this;
 }
         
 Cipher& Cipher::operator=(Cipher&& c) {
+    context = c.context;
     cipher = c.cipher;
+    name = c.name;
+    properties = c.properties;
+
     c.cipher = nullptr;
+    c.name = "";
+    c.properties = "";
     
     return *this;
 }

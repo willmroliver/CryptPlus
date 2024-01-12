@@ -16,6 +16,8 @@ class Cipher {
     private:
         CipherContext context;
         EVP_CIPHER* cipher;
+        std::string name;
+        std::string properties;
     
     public:
         /**
@@ -26,23 +28,13 @@ class Cipher {
         /**
          * @brief See man EVP_CIPHER_fetch
          */
-        Cipher(std::string name, OSSL_LIB_CTX* c);
-        
-        /**
-         * @brief See man EVP_CIPHER_fetch
-         */
-        Cipher(std::string name, OSSL_LIB_CTX* c, std::string properties);
-
-        /**
-         * @brief See man EVP_CIPHER_fetch
-         */
         Cipher(std::string name, std::string properties);
 
-        Cipher(Cipher& c) = delete;
+        Cipher(Cipher& c);
 
         Cipher(Cipher&& c);
 
-        Cipher& operator=(Cipher& c) = delete;
+        Cipher& operator=(Cipher& c);
 
         Cipher& operator=(Cipher&& c);
 

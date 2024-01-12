@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <string>
-#include "crypt.hpp"
+#include "crypt/crypt.hpp"
 
 using namespace crpt;
 
@@ -16,7 +16,7 @@ char iv_128[] = {
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
 };
 
-BOOST_AUTO_TEST_CASE( crypt_simple_encrypt_test ) {
+BOOST_AUTO_TEST_CASE( crypt_encrypt_test ) {
     Crypt aes { "AES-256-CBC" };
 
     std::string plain_text { "Hello, World!" };
@@ -26,10 +26,10 @@ BOOST_AUTO_TEST_CASE( crypt_simple_encrypt_test ) {
     BOOST_ASSERT( cipher_text != plain_text );
 }
 
-BOOST_AUTO_TEST_CASE( crypt_simple_decrypt_test ) {
+BOOST_AUTO_TEST_CASE( crypt_decrypt_test ) {
     Crypt aes { "AES-256-CBC" };
 
-    std::string plain_text = { "Hello, World!" };
+    std::string plain_text { "Hello, World!" };
     auto [cipher_text, success] = aes.encrypt(plain_text, key_256, iv_128);
     
     BOOST_ASSERT( success );
@@ -39,4 +39,17 @@ BOOST_AUTO_TEST_CASE( crypt_simple_decrypt_test ) {
 
     BOOST_ASSERT( decrypt_success );
     BOOST_ASSERT( plain_text == decrypted );
+}
+
+BOOST_AUTO_TEST_CASE( crypt_hash_test ) {
+    std::string data { "Hello, World!" };
+    auto [hash, success] = Crypt::hash(data);
+
+    BOOST_ASSERT( success );
+    BOOST_ASSERT(hash.size() == 32);
+
+    auto [hash_512, success_512] = Crypt::hash("SHA3-512", data);
+
+    BOOST_ASSERT( success_512 );
+    BOOST_ASSERT(hash_512.size() == 64);
 }

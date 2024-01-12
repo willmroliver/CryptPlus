@@ -3,6 +3,7 @@ target_sources(crypt_test
         main.cpp
         crypt.cpp
         exchange.cpp
+        util.cpp
 )
 
 target_link_libraries(crypt_test

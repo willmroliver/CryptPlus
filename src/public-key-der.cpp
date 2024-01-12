@@ -1,8 +1,8 @@
 #include <openssl/evp.h>
 #include <openssl/x509.h>
 #include <cstring>
-#include "pkey.hpp"
-#include "public-key-der.hpp"
+#include "crypt/pkey.hpp"
+#include "crypt/public-key-der.hpp"
 
 using namespace crpt;
 

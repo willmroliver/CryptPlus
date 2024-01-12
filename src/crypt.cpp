@@ -1,10 +1,13 @@
 #include <openssl/evp.h>
+#include <openssl/bio.h>
 #include <string>
 #include <utility>
-#include "cipher-context.hpp"
-#include "cipher.hpp"
-#include "crypt.hpp"
-#include "error.hpp"
+#include "crypt/cipher-context.hpp"
+#include "crypt/cipher.hpp"
+#include "crypt/crypt.hpp"
+#include "crypt/error.hpp"
+#include "crypt/hash-context.hpp"
+#include "crypt/hash.hpp"
 
 using namespace crpt;
 
@@ -76,4 +79,33 @@ std::pair<std::string, bool> Crypt::decrypt(std::string cipher_text, std::string
     decrypt_len += tmp_len;
 
     return {{ reinterpret_cast<char*>(plain_buf), static_cast<unsigned int>(decrypt_len) }, true};
+}
+
+std::pair<std::string, bool> Crypt::hash(std::string algorithm, std::string data) {
+    Hash hash { algorithm };
+
+    if (!hash.digest_init()) {
+        Error::openssl_err_out("EVP_DigestInit_ex2");
+        return { "", false };
+    }
+
+    if (!hash.digest_update(data.c_str(), data.size())) {
+        Error::openssl_err_out("EVP_DigestUpdate");
+        return { "", false };
+    }
+
+    auto len = 0u;
+    auto out = std::make_unique<void*>(OPENSSL_malloc(EVP_MD_get_size(hash.get_hash())));
+
+    if (out.get() == nullptr) {
+        Error::openssl_err_out("OPENSSL_malloc");
+        return { "", false };
+    }
+
+    if (!hash.digest_final(reinterpret_cast<unsigned char*>(out.get()), &len)) {
+        Error::openssl_err_out("EVP_DigestFinal_ex");
+        return { "", false };
+    }
+
+    return {{ reinterpret_cast<char*>(out.get()), len }, true};
 }

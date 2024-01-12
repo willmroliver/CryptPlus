@@ -1,0 +1,1 @@
+target_include_directories(CryptPlus PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/crypt)

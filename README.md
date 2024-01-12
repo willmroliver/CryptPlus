@@ -30,7 +30,7 @@ The following example shows how both a host and a peer would generate their own 
 - Creating a public key for DH exchange
 
 ```cpp
-#include <exchange.hpp>
+#include <crypt/exchange.hpp>
 
 Exchange host;
 PublicKeyDER host_pub_key = host.get_public_key();
@@ -42,7 +42,7 @@ int key_len = host_pub_key.get_len();
 - Creating a PublicKeyDER from raw data
 
 ```cpp
-#include <public-key-der.hpp>
+#include <crypt/public-key-der.hpp>
 
 char* key_data;
 int key_len;
@@ -55,7 +55,7 @@ PublicKeyDER pkd { reinterpret_cast<unsigned char*>(key_data), key_len };
 - Generating a shared secret using a public key
 
 ```cpp
-#include <exchange.hpp>
+#include <crypt/exchange.hpp>
 
 Exchange host;
 PublicKeyDER public_key;
@@ -69,7 +69,7 @@ std::string shared_secret = host.get_secret();
 Next is an example of symmetric encryption/decryption with AES-256.
 
 ```cpp
-#include <crypt.hpp>
+#include <crypt/crypt.hpp>
 
 Crypt aes { "AES-256-CBC" };
 
