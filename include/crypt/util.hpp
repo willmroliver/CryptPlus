@@ -13,18 +13,18 @@ namespace util {
  * See man RAND_bytes
  * 
  * @param n The number of bytes to generate.
- * @return std::string The random bytes, or an empty string on failure.
+ * @return std::vector<char> The random bytes, or an empty vector on failure.
  */
-std::string rand_bytes(unsigned n);
+std::vector<char> rand_bytes(unsigned n);
 
 /**
  * @brief Generates and returns n cryptographically secure random bytes intended for private use, such as a symmetric cipher key. 
  * See man RAND_priv_bytes
  * 
  * @param n The number of bytes to generate.
- * @return std::string The random bytes, or an empty string on failure.
+ * @return std::vector<char> The random bytes, or an empty vector on failure.
  */
-std::string rand_priv_bytes(unsigned n);
+std::vector<char> rand_priv_bytes(unsigned n);
 
 }
 

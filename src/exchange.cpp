@@ -11,13 +11,28 @@ using namespace crpt;
 
 Exchange::Exchange():
     context { "DH" },
-    key { context.get_context(), "ffdhe8192" }
+    key { context.get_context(), "ffdhe2048" }
 {}
 
 Exchange::Exchange(std::string group): 
     context { "DH" },
     key { context.get_context(), group }
 {}
+
+Exchange::Exchange(Exchange& exch):
+    context { exch.context },
+    key { exch.key }
+{}
+
+Exchange::Exchange(Exchange&& exch):
+    context { exch.context },
+    key { exch.key },
+    shared_secret { exch.shared_secret },
+    secret_len { exch.secret_len }
+{
+    exch.shared_secret = nullptr;
+    exch.secret_len = 0;
+}
 
 Exchange::~Exchange() {
     OPENSSL_clear_free(shared_secret, secret_len);
@@ -27,14 +42,14 @@ bool Exchange::derive_secret(PublicKeyDER& public_key) {
     auto shared_key = public_key.get_key();
 
     if (!key.get_key() || !shared_key.get_key()) {
-        Error::err_out("Exchange: derive_secret: at least one key is null");
+        Error::err_out("Exchange: derive_secret: key is null");
         return false;
     }
 
     PKeyContext derive_ctx { key.get_key() };
 
     if (!derive_ctx.derive_init()) {
-        Error::err_out("Exchange: derive_secret: call to PKetContext::derive_init() on context failed");
+        Error::err_out("Exchange: derive_secret: call to PKeyContext::derive_init() on context failed");
         return false;
     }
 
@@ -75,6 +90,6 @@ PublicKeyDER Exchange::get_public_key() {
     return { key };
 }
 
-std::string Exchange::get_secret() {
-    return { reinterpret_cast<char*>(shared_secret) };
+std::vector<char> Exchange::get_secret() {
+    return { shared_secret, shared_secret + secret_len };
 }

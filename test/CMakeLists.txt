@@ -3,6 +3,7 @@ target_sources(crypt_test
         main.cpp
         crypt.cpp
         exchange.cpp
+        public-key-der.cpp
         util.cpp
 )
 

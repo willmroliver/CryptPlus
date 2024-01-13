@@ -14,14 +14,14 @@ namespace crpt {
 class PublicKeyDER {
     private:
         unsigned char* public_key;
-        int len;
+        size_t len;
 
     public:
         PublicKeyDER();
 
         PublicKeyDER(PKey& key);
 
-        PublicKeyDER(unsigned char* pk, int len);
+        PublicKeyDER(unsigned char* pk, size_t len);
 
         PublicKeyDER(PublicKeyDER& pkd);
 
@@ -48,6 +48,19 @@ class PublicKeyDER {
          * @return PKey 
          */
         PKey get_key();
+
+        /**
+         * @brief Returns a std::string holding the key data.
+         * 
+         * @return std::string 
+         */
+        std::vector<char> to_vector() const;
+
+        /**
+         * @brief Marshalls the input string into the class fields.
+         * 
+         */
+        void from_vector(std::vector<char> key_str);
 };
 
 }
