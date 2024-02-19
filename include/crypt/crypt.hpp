@@ -36,6 +36,10 @@ class Crypt {
         inline static std::pair<std::vector<char>, bool> hash(std::vector<char> data) {
             return hash("SHA3-256", data);
         }
+
+        inline static std::pair<std::vector<char>, bool> hash(std::string data) {
+            return hash("SHA3-256", std::vector<char>(data.begin(), data.end()));
+        }
 };
 
 }
