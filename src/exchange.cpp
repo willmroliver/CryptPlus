@@ -38,6 +38,25 @@ Exchange::~Exchange() {
     OPENSSL_clear_free(shared_secret, secret_len);
 }
 
+Exchange& Exchange::operator=(Exchange& exch) {
+    context = exch.context;
+    key = exch.key;
+
+    return *this;
+}
+
+Exchange& Exchange::operator=(Exchange&& exch) {
+    context = exch.context;
+    key = exch.key;
+    shared_secret = exch.shared_secret;
+    secret_len = exch.secret_len;
+
+    exch.shared_secret = nullptr;
+    exch.secret_len = 0;
+
+    return *this;
+}
+
 bool Exchange::derive_secret(PublicKeyDER& public_key) {
     auto shared_key = public_key.get_key();
 
