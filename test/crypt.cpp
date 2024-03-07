@@ -45,6 +45,24 @@ BOOST_AUTO_TEST_CASE( crypt_decrypt_test ) {
     BOOST_ASSERT( plain_text == decrypted );
 }
 
+BOOST_AUTO_TEST_CASE( crypt_decrypt_with_different_instance_test ) {
+    Crypt aes_enc { "AES-256-CBC" };
+    Crypt aes_dec { "AES-256-CBC" };
+
+    std::string bytes { "Hello, World!" };
+    std::vector<char> plain_text { bytes.begin(), bytes.end() };
+
+    auto [cipher_text, success] = aes_enc.encrypt(plain_text, key_256, iv_128);
+    
+    BOOST_ASSERT( success );
+    BOOST_ASSERT( cipher_text != plain_text );
+
+    auto [decrypted, decrypt_success] = aes_dec.decrypt(cipher_text, key_256, iv_128);
+
+    BOOST_ASSERT( decrypt_success );
+    BOOST_ASSERT( plain_text == decrypted );
+}
+
 BOOST_AUTO_TEST_CASE( crypt_hash_test ) {
     std::string bytes { "Hello, World!" };
     std::vector<char> data { bytes.begin(), bytes.end() };
