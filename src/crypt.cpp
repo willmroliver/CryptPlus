@@ -18,7 +18,7 @@ std::pair<std::vector<char>, bool> Crypt::encrypt(std::vector<char> plain_text, 
     }
 
     auto k = reinterpret_cast<const unsigned char*>(key.data());
-    auto i = reinterpret_cast<const unsigned char*>(key.data());
+    auto i = reinterpret_cast<const unsigned char*>(iv.data());
 
     auto max_cipher_text_len = plain_text.size() + cipher.block_size() - 1;
     auto cipher_buf = new unsigned char[max_cipher_text_len];
