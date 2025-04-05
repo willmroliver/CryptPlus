@@ -3,9 +3,8 @@
 
 #include <openssl/evp.h>
 #include <openssl/err.h>
-
-#include "error.hpp"
 #include "cipher-context.hpp"
+#include <string>
 
 namespace crpt {
 
